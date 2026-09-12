@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "outline_mm": [
+    406.4,
+    50.8
+  ],
+  "top_flashes": 482,
+  "bottom_flashes": 450,
+  "plated_holes": 450,
+  "nonplated_holes": 8,
+  "npth_diameter_mm": 3.2,
+  "format": "RS-274X mm 4.6; Excellon mm explicit decimal"
+}

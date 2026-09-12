@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "minimumCopperClearanceMm": 0.19999999999997725,
+  "components": 68,
+  "pads": 202,
+  "nets": 53,
+  "tracks": 439,
+  "vias": 280,
+  "errors": []
+}

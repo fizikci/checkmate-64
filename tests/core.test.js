@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { Chess } from 'chess.js';
+import { BoardFSM } from '../src/fsm.js';
+import { ChessClock } from '../src/clock.js';
+import { bit, hex, START, parseMask, occupancy, validate } from '../src/protocol.js';
+
+test('LERF preserves both ends and all 64 bits', () => { assert.equal(bit('a1'), 1n); assert.equal(bit('h8'), 1n << 63n); assert.equal(parseMask(hex(START)), START); assert.equal(occupancy(new Chess()), START); assert.throws(() => parseMask('0x1')); assert.throws(() => validate({ cmd: 'set_leds', data: { mask: hex(0n), color: 'red', mode: 'solid' } })); });
+test('legal e2-e4 commits once, repeated state does not duplicate', () => { const fsm = new BoardFSM(); assert.equal(fsm.observe(START ^ bit('e2')).type, 'lifted'); const next = START ^ bit('e2') ^ bit('e4'); assert.equal(fsm.observe(next).move.san, 'e4'); assert.equal(fsm.observe(next).type, 'restored'); assert.equal(fsm.chess.history().length, 1); });
+test('illegal move requires full restoration', () => { const f = new BoardFSM(); f.observe(START ^ bit('e2')); assert.equal(f.observe(START ^ bit('e2') ^ bit('e5')).type, 'invalid'); assert.equal(f.observe(START ^ bit('e2') ^ bit('e4')).type, 'invalid'); assert.equal(f.observe(START).type, 'restored'); assert.equal(f.chess.history().length, 0); });
+for (const victimFirst of [false, true]) test(`capture with victim first=${victimFirst}`, () => { const c = new Chess(); c.move('e4'); c.move('d5'); const f = new BoardFSM(c); let m = occupancy(c); const from = victimFirst ? 'd5' : 'e4', second = victimFirst ? 'e4' : 'd5'; assert.equal(f.observe(m ^= bit(from)).type, 'lifted'); assert.equal(f.observe(m ^= bit(second)).type, 'lifted'); assert.equal(f.observe(m ^= bit('d5')).move.san, 'exd5'); });
+test('capture is not inferred without victim removal evidence', () => { const c = new Chess(); c.move('e4'); c.move('d5'); const f = new BoardFSM(c); assert.equal(f.observe(occupancy(c) ^ bit('e4')).type, 'lifted'); assert.equal(c.history().length, 2); });
+test('castling waits for rook', () => { const c = new Chess('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1'); const f = new BoardFSM(c); let m = occupancy(c); f.observe(m ^= bit('e1')); assert.equal(f.observe(m ^= bit('g1')).type, 'pending'); f.observe(m ^= bit('h1')); assert.equal(f.observe(m ^= bit('f1')).move.san, 'O-O'); });
+test('en passant requires victim removal', () => { const c = new Chess('4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1'); const f = new BoardFSM(c); let m = occupancy(c); f.observe(m ^= bit('e5')); assert.equal(f.observe(m ^= bit('d6')).type, 'pending'); assert.equal(f.observe(m ^= bit('d5')).move.san, 'exd6'); });
+test('underpromotion selection', () => { const c = new Chess('4k3/P7/8/8/8/8/8/4K3 w - - 0 1'); const f = new BoardFSM(c); let m = occupancy(c); f.observe(m ^= bit('a7')); assert.equal(f.observe(m ^= bit('a8'), { promotion: 'n' }).move.promotion, 'n'); });
+test('engine turn rejects a different legal move', () => { const f = new BoardFSM(); f.observe(START ^ bit('d2')); assert.equal(f.observe(START ^ bit('d2') ^ bit('d4'), { expectedMove: 'e2e4' }).type, 'invalid'); });
+test('clock switches, pauses and flags using elapsed time', () => { let now = 0; const c = new ChessClock(1, () => now); c.start('w'); now = 1000; c.start('b'); assert.equal(c.remaining.w, 59000); now = 4000; c.pause(); assert.equal(c.remaining.b, 57000); now = 20000; c.tick(); assert.equal(c.remaining.b, 57000); c.start('w'); now += 60000; assert.equal(c.tick(), 'w'); assert.equal(c.remaining.w, 0); });

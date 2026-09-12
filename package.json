@@ -1,0 +1,23 @@
+{
+  "name": "checkmate-64",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "server": "node server/index.js",
+    "build": "node scripts/engine-assets.js && vite build",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node scripts/browser-check.js",
+    "postinstall": "node scripts/engine-assets.js"
+  },
+  "dependencies": {
+    "chess.js": "1.4.0",
+    "stockfish": "18.0.8",
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "vite": "7.3.6"
+  }
+}

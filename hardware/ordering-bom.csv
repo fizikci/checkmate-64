@@ -1,0 +1,14 @@
+References,Part,Package,Per row,For 8 rows
+U1-U8,A3144,Formed leads 2.54 mm pitch face up,8,64
+U9,74HC165N,DIP16 7.62 mm wide,1,8
+U9 socket,DIP16 socket,7.62 mm wide 2.54 mm pitch,1,8
+U10-U11,TLC6C598PW,TSSOP16 PW 0.65 mm pitch,2,16
+D1-D8,Red LED,5 mm through-hole 2.54 mm pitch,8,64
+D9-D16,Green LED,5 mm through-hole 2.54 mm pitch,8,64
+R9-R24,1 kohm,Axial 1/4W formed pitch 10.16 mm,16,128
+R1-R8 R25-R26,10 kohm,Axial 1/4W formed pitch 10.16 mm,10,80
+R27,100 kohm,Axial 1/4W formed pitch 10.16 mm,1,8
+C1-C11,100 nF ceramic,X7R >=10V pitch 5.08 mm body <=6x3 mm,11,88
+C12,10 uF electrolytic,>=10V pitch 2.5 mm diameter <=6.3 mm,1,8
+J1-J2,2x5 header,Unshrouded 2.54 mm pitch,2,16
+Mounting,M3 nylon spacer and screw sets,Height selected to clear parts,8,64
